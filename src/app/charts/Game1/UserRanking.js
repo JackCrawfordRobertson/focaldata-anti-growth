@@ -7,7 +7,8 @@ import {
   List,
   ListItem,
   ListItemText,
-  Paper
+  Paper,
+  Modal
 } from '@mui/material';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
@@ -71,6 +72,8 @@ const UserRanking = ({ onSubmit }) => {
   const [userRanking, setUserRanking] = useState([...categories]);
   const [showOverlay, setShowOverlay] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);  // Controls the fade-out effect
+  const [showScoreOverlay, setShowScoreOverlay] = useState(false); // For showing score overlay
+  const [score, setScore] = useState(0);
 
   const onSortEnd = ({ oldIndex, newIndex }) => {
     setUserRanking((prevRanking) =>
@@ -78,20 +81,34 @@ const UserRanking = ({ onSubmit }) => {
     );
   };
 
-  const handleSubmit = () => {
-    onSubmit(userRanking);
-  };
-
   const handleOverlayClick = () => {
     setFadeOut(true);  // Trigger fade-out effect
     setTimeout(() => {
-      setShowOverlay(false);  // Remove overlay after 3 seconds
-    }, 3000);
+      setShowOverlay(false);  // Remove overlay after 1 second
+    }, 1000);
+  };
+
+  const handleSubmit = () => {
+    let correctCount = 0;
+    const correctRanking = categories; // Assuming categories are in the correct order
+    userRanking.forEach((item, index) => {
+      if (item === correctRanking[index]) {
+        correctCount++;
+      }
+    });
+    setScore(correctCount);
+
+    setShowScoreOverlay(true); // Show the score overlay after submission
+  };
+
+  const handleModalClose = () => {
+    setShowScoreOverlay(false); // Close the score overlay
+    onSubmit(userRanking); // Move to the next step, like showing the interactive chart
   };
 
   return (
     <Container sx={{ borderRadius: '30px', width: '100%', backgroundColor: 'white', padding: '20px', position: 'relative' }}>
-      {/* Overlay */}
+      {/* Overlay for "Get Started" */}
       {showOverlay && (
         <Box
           sx={{
@@ -107,7 +124,7 @@ const UserRanking = ({ onSubmit }) => {
             alignItems: 'center',
             backdropFilter: 'blur(10px)', // Frosted glass effect
             opacity: fadeOut ? 0 : 1,  // Fade effect on click
-            transition: 'opacity 1s ease',  // 3-second fade transition
+            transition: 'opacity 1s ease',  // 1-second fade transition
           }}
         >
           <Button
@@ -161,6 +178,54 @@ const UserRanking = ({ onSubmit }) => {
           Submit your answers Ranking
         </Button>
       </Box>
+
+      {/* Score Overlay */}
+      {showScoreOverlay && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)', // Glassy white background for score overlay
+            zIndex: 10,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backdropFilter: 'blur(10px)', // Frosted glass effect
+            opacity: 1,
+          }}
+        >
+          <Box
+            sx={{
+              backgroundColor: 'white',
+              padding: '30px',
+              borderRadius: '10px',
+              boxShadow: '0px 2px 6px rgba(0,0,0,0.2)',
+              textAlign: 'center',
+              width: '400px',
+            }}
+          >
+            <Typography variant="h6">You got {score} out of 9 correct!</Typography>
+            <Typography sx={{ marginTop: '10px' }}>Now, see how your answers compare with expert analysis.</Typography>
+            <Button 
+              variant="contained" 
+              sx={{ 
+                marginTop: '20px',
+                maxWidth: '100%',
+                backgroundColor: '#6babf2',
+                '&:hover': {
+                  backgroundColor: '#5a9be2',
+                },
+              }}
+              onClick={handleModalClose}
+            >
+              Continue
+            </Button>
+          </Box>
+        </Box>
+      )}
     </Container>
   );
 };
