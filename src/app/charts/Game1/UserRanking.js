@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Box,
   Button,
@@ -8,18 +8,13 @@ import {
   ListItem,
   ListItemText,
   Paper,
-  Modal
 } from '@mui/material';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import { arrayMoveImmutable } from 'array-move';
 
-// Drag handle component
-const DragHandle = SortableHandle(() => (
-  <DragIndicatorIcon />
-));
+const DragHandle = SortableHandle(() => <DragIndicatorIcon />);
 
-// Sortable item component
 const SortableItem = SortableElement(({ value }) => (
   <ListItem
     sx={{
@@ -28,7 +23,7 @@ const SortableItem = SortableElement(({ value }) => (
       boxShadow: '0px 2px 6px #6babf240',
       display: 'flex',
       alignItems: 'center',
-      padding: '20px 20px', 
+      padding: '20px 20px',
     }}
   >
     <ListItemText primary={value} sx={{ flexGrow: 1 }} />
@@ -36,74 +31,78 @@ const SortableItem = SortableElement(({ value }) => (
   </ListItem>
 ));
 
-// Sortable container component
-const SortableList = SortableContainer(({ items }) => {
-  return (
-    <List
-      component={Paper}
-      sx={{ 
-        backgroundColor: 'white', 
-        paddingLeft: 0, 
-        paddingRight: 0,
-        paddingTop: 2,
-        boxShadow: 'none'
-      }}
-    >
-      {items.map((value, index) => (
-        <SortableItem key={`item-${value}`} index={index} value={value} />
-      ))}
-    </List>
-  );
-});
+const SortableList = SortableContainer(({ items }) => (
+  <List
+    component={Paper}
+    sx={{ backgroundColor: 'white', paddingLeft: 0, paddingRight: 0, paddingTop: 2, boxShadow: 'none' }}
+  >
+    {items.map((value, index) => (
+      <SortableItem key={`item-${value}`} index={index} value={value} />
+    ))}
+  </List>
+));
 
 const categories = [
-  "National Prosperity", 
-  "Economic Indicators", 
-  "Individual Prosperity", 
-  "Employment Growth", 
-  "Political Scepticism", 
-  "General Confusion", 
-  "Business Expansion", 
-  "Public Services/Finances", 
-  "Wealth Distribution"
+  'National Prosperity',
+  'Economic Indicators',
+  'Individual Prosperity',
+  'Employment Growth',
+  'Political Scepticism',
+  'General Confusion',
+  'Business Expansion',
+  'Public Services/Finances',
+  'Wealth Distribution',
 ];
 
-const UserRanking = ({ onSubmit }) => {
+const UserRanking = ({ onSubmit, onContinue }) => {
   const [userRanking, setUserRanking] = useState([...categories]);
   const [showOverlay, setShowOverlay] = useState(true);
-  const [fadeOut, setFadeOut] = useState(false);  // Controls the fade-out effect
+  const [fadeOut, setFadeOut] = useState(false); // Controls the fade-out effect
   const [showScoreOverlay, setShowScoreOverlay] = useState(false); // For showing score overlay
   const [score, setScore] = useState(0);
 
-  const onSortEnd = ({ oldIndex, newIndex }) => {
-    setUserRanking((prevRanking) =>
-      arrayMoveImmutable(prevRanking, oldIndex, newIndex)
-    );
-  };
+  const chartRef = useRef(null); // Reference for the chart section
 
-  const handleOverlayClick = () => {
-    setFadeOut(true);  // Trigger fade-out effect
-    setTimeout(() => {
-      setShowOverlay(false);  // Remove overlay after 1 second
-    }, 1000);
+  const onSortEnd = ({ oldIndex, newIndex }) => {
+    setUserRanking((prevRanking) => arrayMoveImmutable(prevRanking, oldIndex, newIndex));
   };
 
   const handleSubmit = () => {
     let correctCount = 0;
-    const correctRanking = categories; // Assuming categories are in the correct order
+    const correctRanking = categories;
     userRanking.forEach((item, index) => {
       if (item === correctRanking[index]) {
         correctCount++;
       }
     });
     setScore(correctCount);
-
     setShowScoreOverlay(true); // Show the score overlay after submission
   };
 
   const handleModalClose = () => {
-    setShowScoreOverlay(false); // Close the score overlay
-    onSubmit(userRanking); // Move to the next step, like showing the interactive chart
+    setShowScoreOverlay(true); // Keep the score overlay visible
+
+    // Scroll to chart section smoothly
+    if (chartRef.current) {
+      chartRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    onSubmit(userRanking); // Keep the ranking component visible
+    onContinue(); // Trigger the chart rendering
+  };
+
+  // Function to reset the state for retry
+  const handleRetry = () => {
+    setUserRanking([...categories]); // Reset the user ranking to initial state
+    setShowScoreOverlay(false); // Hide the score overlay
+    setShowOverlay(true); // Show the starting overlay again
+  };
+
+  const handleOverlayClick = () => {
+    setFadeOut(true); // Trigger fade-out effect
+    setTimeout(() => {
+      setShowOverlay(false); // Remove overlay after 1 second
+    }, 1000);
   };
 
   return (
@@ -123,8 +122,8 @@ const UserRanking = ({ onSubmit }) => {
             justifyContent: 'center',
             alignItems: 'center',
             backdropFilter: 'blur(10px)', // Frosted glass effect
-            opacity: fadeOut ? 0 : 1,  // Fade effect on click
-            transition: 'opacity 1s ease',  // 1-second fade transition
+            opacity: fadeOut ? 0 : 1, // Fade effect on click
+            transition: 'opacity 1s ease', // 1-second fade transition
           }}
         >
           <Button
@@ -153,22 +152,22 @@ const UserRanking = ({ onSubmit }) => {
       <Typography variant="subtitle2" align="left" gutterBottom sx={{ fontStyle: 'italic', fontWeight: 300 }}>
         Higher Priority
       </Typography>
-      
+
       <SortableList items={userRanking} onSortEnd={onSortEnd} useDragHandle />
-      
+
       <Typography variant="subtitle2" align="left" gutterBottom sx={{ fontStyle: 'italic', fontWeight: 300 }}>
         Lower Priority
       </Typography>
 
       <Box textAlign="center" marginTop={2} sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={handleSubmit}
           sx={{
-            width: 'auto', 
-            minWidth: '100%', 
-            padding: '10px 20px', 
-            backgroundColor: '#6babf2', 
+            width: 'auto',
+            minWidth: '100%',
+            padding: '10px 20px',
+            backgroundColor: '#6babf2',
             color: '#FFFFFF',
             '&:hover': {
               backgroundColor: '#5a9be2',
@@ -209,9 +208,9 @@ const UserRanking = ({ onSubmit }) => {
           >
             <Typography variant="h6">You got {score} out of 9 correct!</Typography>
             <Typography sx={{ marginTop: '10px' }}>Now, see how your answers compare with expert analysis.</Typography>
-            <Button 
-              variant="contained" 
-              sx={{ 
+            <Button
+              variant="contained"
+              sx={{
                 marginTop: '20px',
                 maxWidth: '100%',
                 backgroundColor: '#6babf2',
@@ -223,9 +222,27 @@ const UserRanking = ({ onSubmit }) => {
             >
               Continue
             </Button>
+            {/* Retry Button */}
+            <Button
+              variant="contained"
+              sx={{
+                marginTop: '10px',
+                maxWidth: '100%',
+                backgroundColor: '#e74c3c',
+                '&:hover': {
+                  backgroundColor: '#c0392b',
+                },
+              }}
+              onClick={handleRetry}
+            >
+              Retry
+            </Button>
           </Box>
         </Box>
       )}
+
+      {/* Reference to the chart */}
+      <div ref={chartRef}></div>
     </Container>
   );
 };
