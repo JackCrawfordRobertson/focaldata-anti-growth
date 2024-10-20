@@ -18,7 +18,7 @@ const ThinkathonInstructions = () => {
     >
       {/* Title */}
       <Typography variant="h4" component="h1" sx={{ fontWeight: "bold", marginBottom: "20px", color: "#333" }}>
-      The Focaldata Thinkathon on Economic Strategy
+      The Thinkathon on Economic Strategy
       </Typography>
 
   <Typography
