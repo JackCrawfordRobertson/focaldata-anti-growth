@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Button,
@@ -13,9 +13,19 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import { arrayMoveImmutable } from 'array-move';
 
+// Function to shuffle an array
+const shuffleArray = (array) => {
+  let shuffledArray = [...array];
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  }
+  return shuffledArray;
+};
+
 const DragHandle = SortableHandle(() => <DragIndicatorIcon />);
 
-const SortableItem = SortableElement(({ value, onClick }) => (
+const SortableItem = SortableElement(({ value }) => (
   <ListItem
     sx={{
       backgroundColor: 'white',
@@ -24,9 +34,8 @@ const SortableItem = SortableElement(({ value, onClick }) => (
       display: 'flex',
       alignItems: 'center',
       padding: '20px 20px',
-      cursor: 'pointer', // Make the entire item look clickable
+      cursor: 'pointer',
     }}
-    onClick={onClick} // Add the onClick handler for the entire item
   >
     <ListItemText primary={value} sx={{ flexGrow: 1 }} />
     <DragHandle />
@@ -57,13 +66,18 @@ const categories = [
 ];
 
 const UserRanking = ({ onSubmit, onContinue }) => {
-  const [userRanking, setUserRanking] = useState([...categories]);
+  const [userRanking, setUserRanking] = useState([]);
   const [showOverlay, setShowOverlay] = useState(true);
   const [fadeOut, setFadeOut] = useState(false); // Controls the fade-out effect
   const [showScoreOverlay, setShowScoreOverlay] = useState(false); // For showing score overlay
   const [score, setScore] = useState(0);
 
   const chartRef = useRef(null); // Reference for the chart section
+
+  // Shuffle the categories list when the component mounts
+  useEffect(() => {
+    setUserRanking(shuffleArray(categories));
+  }, []);
 
   const onSortEnd = ({ oldIndex, newIndex }) => {
     setUserRanking((prevRanking) => arrayMoveImmutable(prevRanking, oldIndex, newIndex));
@@ -95,7 +109,7 @@ const UserRanking = ({ onSubmit, onContinue }) => {
 
   // Function to reset the state for retry
   const handleRetry = () => {
-    setUserRanking([...categories]); // Reset the user ranking to initial state
+    setUserRanking(shuffleArray(categories)); // Reset the user ranking with a new shuffled array
     setShowScoreOverlay(false); // Hide the score overlay
     setShowOverlay(true); // Show the starting overlay again
   };
@@ -149,8 +163,8 @@ const UserRanking = ({ onSubmit, onContinue }) => {
 
       {/* Ranking Component */}
       <Typography variant="h5" align="left" gutterBottom>
-  Rank The Topics By Dragging The <DragIndicatorIcon style={{ margin: '0', padding: '0', verticalAlign: 'middle' }} /> Icon
-</Typography>
+        Rank The Topics By Dragging The <DragIndicatorIcon style={{ margin: '0', padding: '0', verticalAlign: 'middle' }} /> Icon
+      </Typography>
       <Typography variant="subtitle2" align="left" gutterBottom sx={{ fontStyle: 'italic', fontWeight: 300 }}>
         Higher Priority
       </Typography>
