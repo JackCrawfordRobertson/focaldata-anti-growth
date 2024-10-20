@@ -10,7 +10,6 @@ import PullQuote from "../app/components/PullQuote";
 import SubHead from "../app/components/SubHead";
 
 //games
-
 import Game from "./charts/Game1/Game"; // adjust the path based on your file structure
 import ThinkathonInstructions from "./charts/Game1/ThinkathonInstructions";
 

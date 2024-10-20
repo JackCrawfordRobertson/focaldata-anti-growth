@@ -15,7 +15,7 @@ import { arrayMoveImmutable } from 'array-move';
 
 const DragHandle = SortableHandle(() => <DragIndicatorIcon />);
 
-const SortableItem = SortableElement(({ value }) => (
+const SortableItem = SortableElement(({ value, onClick }) => (
   <ListItem
     sx={{
       backgroundColor: 'white',
@@ -24,7 +24,9 @@ const SortableItem = SortableElement(({ value }) => (
       display: 'flex',
       alignItems: 'center',
       padding: '20px 20px',
+      cursor: 'pointer', // Make the entire item look clickable
     }}
+    onClick={onClick} // Add the onClick handler for the entire item
   >
     <ListItemText primary={value} sx={{ flexGrow: 1 }} />
     <DragHandle />
@@ -147,8 +149,8 @@ const UserRanking = ({ onSubmit, onContinue }) => {
 
       {/* Ranking Component */}
       <Typography variant="h5" align="left" gutterBottom>
-        Rank the Topics by Priority
-      </Typography>
+  Rank The Topics By Dragging The <DragIndicatorIcon style={{ margin: '0', padding: '0', verticalAlign: 'middle' }} /> Icon
+</Typography>
       <Typography variant="subtitle2" align="left" gutterBottom sx={{ fontStyle: 'italic', fontWeight: 300 }}>
         Higher Priority
       </Typography>
