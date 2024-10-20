@@ -238,7 +238,7 @@ const UserRanking = ({ onSubmit, onContinue }) => {
             >
               Continue
             </Button>
-            {/* Retry Button */}
+            {/* Retry Button
             <Button
               variant="contained"
               sx={{
@@ -252,7 +252,7 @@ const UserRanking = ({ onSubmit, onContinue }) => {
               onClick={handleRetry}
             >
               Retry
-            </Button>
+            </Button> */}
           </Box>
         </Box>
       )}
