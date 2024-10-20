@@ -1,0 +1,21 @@
+/* PullQuote.module.css */
+
+.pullQuote {
+    margin: 2rem auto;
+    padding: 1rem;
+    background-color: #fff; /* Nice shade of white for background */
+    border-left: 4px solid #6babf2; /* Blue accent border */
+    box-shadow: 0 4px 8px #6baaf218; /* Subtle drop shadow */
+}
+
+.quoteText {
+    font-size: 1.2rem;
+    text-align: left;
+}
+
+.quoteAuthor {
+    text-align: left;
+    margin-top: 0.5rem;
+    font-weight: bold;
+    
+}
